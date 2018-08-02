@@ -210,7 +210,7 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_mnuCloseActionPerformed
 
     private void mnuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuAboutActionPerformed
-        JOptionPane.showMessageDialog(this, "Copyright 2018 SunakazeKun\n--Github link--", Main.name, JOptionPane.PLAIN_MESSAGE, null);
+        JOptionPane.showMessageDialog(this, "Copyright 2018 SunakazeKun\nhttps://github.com/SunakazeKun/AlmiaE", Main.name, JOptionPane.PLAIN_MESSAGE, null);
     }//GEN-LAST:event_mnuAboutActionPerformed
 
     private void btnPokemonEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokemonEditorActionPerformed

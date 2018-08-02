@@ -135,8 +135,6 @@ public class PokeID {
             e.unk16 = buf.readUnsignedShort();
             e.unk18 = buf.readInt();
             
-            System.out.println(e.unk7);
-            
             entries.add(e);
         }
     }
