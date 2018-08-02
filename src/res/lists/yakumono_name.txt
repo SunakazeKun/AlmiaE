@@ -1,0 +1,368 @@
+﻿NONE
+Strange Weed
+Smelly Flower
+Huge Flower
+Chunky Rock
+Rugged Rock
+Curious Tree
+Strange Cactus
+NONE
+Moving Tree
+NONE
+Planted Tree
+Strange Plant
+Solid Snow
+Gigaremo
+Gigaremo
+Gigaremo
+Gigaremo
+Gigaremo
+NONE
+Round Rock
+Round Rock
+Round Rock
+Round Rock
+Heavy Boulder
+Small Rock
+Small Rock
+Crate
+Crate
+Rock
+Rock
+Rock
+Rock
+Cracked Wall
+Cracked Wall
+Boulder
+Boulder
+Wood Fence
+Wood Fence
+Wood Fence
+Fallen Tree
+Fallen Tree
+Steel Frame
+Large Cage
+Fallen Log
+Rope
+NONE
+Solid Ice
+Ice Block
+Burning Log
+Fiery Wall
+Hot Boulder
+Fallen Leaves
+Soft Soil
+NONE
+Torch
+Torch
+NONE
+NONE
+Trap
+Power Generator
+Power Generator
+Power Generator
+Power Generator
+Gate
+Gate
+Gate
+Gate
+Vine
+Vine
+Vine
+Vine
+Forest Tree
+Forest Tree
+Snow Tree
+NONE
+NONE
+NONE
+Electric Door
+Electric Door
+Electric Door
+Electric Door
+Electric Door
+Electric Door
+Sealed Door
+Sealed Door
+Sealed Door
+Steel Statue
+Rock Statue
+Pledge Stone
+Pledge Stone
+Ice Statue
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+Ice Wall
+Rotten Log
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+Wire Fence
+Kingston Valve
+Yellow Switch
+Green Switch
+Wood Block
+Metal Fence
+Circuit Ball
+Circuit Ball
+Circuit Ball
+Smoke Detector
+Gateway
+Sand Cover
+Strange Machine
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE
+NONE

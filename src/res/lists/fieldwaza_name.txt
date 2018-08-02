@@ -1,0 +1,25 @@
+NONE
+Cut
+Crush
+Psy Power
+Tackle
+Electrify
+Soak
+Burn
+Tunnel
+Recharge
+Agility
+Fly
+Teleport
+Rain Dance
+Demist
+Flash
+Airlift
+Elevate
+Stink
+Sand Fill
+Aura Blast
+River Flow
+Magma Flow
+Swim
+Dark Power
