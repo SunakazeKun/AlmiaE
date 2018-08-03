@@ -105,16 +105,20 @@ public class Map {
         
         if (cta != null) {
             ByteBuffer ctaBuf = new ByteBuffer(0x4 + cta.length);
+            
             ctaBuf.writeInt(MAP_CTA);
             ctaBuf.writeBytes(cta);
+            
             root.addFile(ctaBuf.getBuffer());
         }
         
         
         if (pla != null) {
             ByteBuffer plaBuf = new ByteBuffer(0x4 + pla.length);
+            
             plaBuf.writeInt(MAP_PLA);
             plaBuf.writeBytes(pla);
+            
             root.addFile(plaBuf.getBuffer());
         }
         

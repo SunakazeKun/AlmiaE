@@ -34,7 +34,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 public class Main extends javax.swing.JFrame {
-    public static String name = "AlmiaE v0.1";
+    public static String name = "AlmiaE v0.1.1";
     public static Image icon = Toolkit.getDefaultToolkit().createImage(Main.class.getResource("/res/icon.png"));
     public static boolean debug = false;
     
