@@ -17,32 +17,36 @@
 
 package com.aurum.almia.game.map;
 
-import com.aurum.almia.ByteBuffer;
-import com.aurum.almia.ByteOrder;
-import static com.aurum.almia.game.map.Layer.*;
+import com.aurum.almia.util.ByteBuffer;
+import java.nio.ByteOrder;
+import com.aurum.almia.util.RenderHelper;
+import com.aurum.almia.Resources;
+import com.aurum.almia.game.param.PokeID;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.List;
 
-public class MonData {
+public class MonData extends AbstractData<MonData.Entry> {
     public static final int HEADER_SIZE = 0x8;
     public static final int ENTRY_SIZE = 0xA;
     
-    //--------------------------------------------------------------------------
-    
-    public class Entry implements Cloneable {
+    public class Entry extends AbstractEntry<MonData> {
         public short posX;
         public short posY;
-        public short behavior;  // unsigned byte
-        public byte enabled;    // possibly boolean
-        public int monID;       // unsigned short
+        public short behavior;      // unsigned byte
+        public short appearance;    // unsigned byte
+        public int monID;           // unsigned short
         public byte unk8;
         public byte unk9;
         
         public Entry() {
+            super(MonData.this);
+            
             this.posX = 0;
             this.posY = 0;
             this.behavior = 0;
-            this.enabled = 1;
+            this.appearance = 1;
             this.monID = 0;
             this.unk8 = 0;
             this.unk9 = 0;
@@ -50,19 +54,30 @@ public class MonData {
         
         @Override
         public String toString() {
-            return String.format("%03X: %s", monID, layer.map.game.monDataBase.entries.get(monID).toShortString());
+            return layer.map.game.getPokemonList().get(monID);
+        }
+        
+        @Override
+        public void render(Graphics g) {
+            PokeID.Entry monid = layer.map.game.monDataBase.entries.get(monID);
+            BufferedImage img = Resources.getMonImg(monid.nameID, monid.formID);
+            int x = posX - 48;
+            int y = posY - 48;
+
+            if (img == null)
+                RenderHelper.drawBox(
+                        g, posX, posY, 16, 16,
+                        Color.BLACK, new Color(1f, 0f, 0f, 0.5f),
+                        true
+                );
+            else
+                g.drawImage(img, x, y, null);
         }
     }
     
-    //--------------------------------------------------------------------------
-    
-    public Layer layer;
-    public List<Entry> entries;
-    
-    //--------------------------------------------------------------------------
-    
     public MonData(Layer layer) {
-        this.layer = layer;
+        super(layer);
+        
         this.entries = new ArrayList();
     }
     
@@ -79,7 +94,7 @@ public class MonData {
             e.posX = buf.readShort();
             e.posY = buf.readShort();
             e.behavior = buf.readUnsignedByte();
-            e.enabled = buf.readByte();
+            e.appearance = buf.readUnsignedByte();
             e.monID = buf.readUnsignedShort();
             e.unk8 = buf.readByte();
             e.unk9 = buf.readByte();
@@ -88,24 +103,41 @@ public class MonData {
         }
     }
     
+    @Override
+    public String toString() {
+        return "Pokémon";
+    }
+    
+    @Override
     public byte[] pack() {
         int totalsize = HEADER_SIZE + entries.size() * ENTRY_SIZE;
         
         ByteBuffer buf = new ByteBuffer(totalsize, ByteOrder.LITTLE_ENDIAN);
         
-        buf.writeInt(MDATA_MON);
+        buf.writeInt(getIdentifier());
         buf.writeInt(entries.size());
         
         for (Entry e : entries) {
             buf.writeShort(e.posX);
             buf.writeShort(e.posY);
             buf.writeUnsignedByte(e.behavior);
-            buf.writeByte(e.enabled);
+            buf.writeUnsignedByte(e.appearance);
             buf.writeUnsignedShort(e.monID);
             buf.writeByte(e.unk8);
             buf.writeByte(e.unk9);
         }
         
         return buf.getBuffer();
+    }
+    
+    @Override
+    public int getIdentifier() {
+        return Layer.MDATA_MON;
+    }
+    
+    @Override
+    public void render(Graphics g) {
+        for (Entry entry : entries)
+            entry.render(g);
     }
 }

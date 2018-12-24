@@ -19,29 +19,40 @@ package com.aurum.almia;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Lists {
-    public static List<String> pokemon_name, fieldwaza_name, assist_mes, yakumono_name, obstacles;
+public final class Lists {
+    private Lists() {}
+    
+    public static List<String> pokemon_name;
+    public static List<String> fieldwaza_name;
+    public static List<String> assist_mes;
+    public static List<String> yakumono_name;
+    public static List<String> obstacles;
+    public static List<String> npcs;
     
     public static void init() {
-        pokemon_name = populate("/res/lists/pokemon_name.txt");
-        fieldwaza_name = populate("/res/lists/fieldwaza_name.txt");
-        assist_mes = populate("/res/lists/assist_mes.txt");
-        yakumono_name = populate("/res/lists/yakumono_name.txt");
-        obstacles = populate("/res/lists/obstacles.txt");
+        pokemon_name   = populate("lists/pokemon_name.txt");
+        fieldwaza_name = populate("lists/fieldwaza_name.txt");
+        assist_mes     = populate("lists/assist_mes.txt");
+        yakumono_name  = populate("lists/yakumono_name.txt");
+        
+        obstacles      = populate("lists/obstacles.txt");
+        npcs           = populate("lists/npcs.txt");
     }
     
     private static List<String> populate(String filepath) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(Lists.class.getResourceAsStream(filepath)));
+        BufferedReader reader = new BufferedReader(Resources.loadReader(filepath));
         List<String> list = new ArrayList();
         
         String line;
+        
         try {
             while ((line = reader.readLine()) != null)
                 list.add(line.trim());
+            
+            reader.close();
         }
         catch (IOException ex) {
             System.out.println(ex);

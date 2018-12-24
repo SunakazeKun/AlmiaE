@@ -17,22 +17,24 @@
 
 package com.aurum.almia.game;
 
+import com.aurum.almia.Lists;
 import com.aurum.almia.game.param.BattlePokemon;
 import com.aurum.almia.game.param.PokeID;
-import com.aurum.almia.Utils;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Game {
     public static Game current;
-    
-    //--------------------------------------------------------------------------
     
     public File filesystem;
     public PokeID monDataBase;
     public BattlePokemon monDataBattle;
     
-    //--------------------------------------------------------------------------
+    public Game(String fsdir) {
+        this(new File(fsdir));
+    }
     
     public Game(File fs) {
         this.filesystem = fs;
@@ -40,25 +42,65 @@ public class Game {
         this.monDataBattle = null;
     }
     
-    public Game(String fsdir) {
-        this(new File(fsdir));
-    }
-    
     @Override
     public String toString() {
         return filesystem.getAbsolutePath();
     }
     
-    public String getPath() {
-        return filesystem.getAbsolutePath();
+    public String getFilePath(String file) {
+        return String.format("%s/%s", toString(), file);
     }
     
-    public String getFullPath(String file) {
-        return String.format("%s/%s", getPath(), file);
+    public File getFile(String file) {
+        return new File(getFilePath(file));
     }
     
     public void init() throws IOException {
-        monDataBase = new PokeID(this, Utils.loadFileIntoBuffer(getFullPath("param/PokeID.bin")));
-        monDataBattle = new BattlePokemon(this, Utils.loadFileIntoBuffer(getFullPath("param/BattlePokemon.bin")));
+        monDataBase = new PokeID(this);
+        //monDataBattle = new BattlePokemon(this);
+    }
+    
+    public List<String> getMapsList() {
+        File[] files = getFile("field/map").listFiles();
+        List<String> list = new ArrayList();
+        
+        for (File file : files) {
+            if (!file.isFile())
+                continue;
+            
+            String filename = file.getName();
+            
+            if (filename.endsWith(".map.dat.lz"))
+                list.add(filename.replace(".map.dat.lz", ""));
+        }
+        
+        return list;
+    }
+    
+    public List<String> getPokemonList() {
+        List<String> list = new ArrayList();
+        
+        for (int i = 0 ; i < monDataBase.entries.size() ; i++)
+            list.add(String.format("%03X: %s", i, monDataBase.entries.get(i).toShortString()));
+        
+        return list;
+    }
+    
+    public List<String> getTargetList() {
+        List<String> list = new ArrayList();
+        
+        for (int i = 0 ; i < Lists.obstacles.size() ; i++)
+            list.add(String.format("%02X: %s", i, Lists.obstacles.get(i)));
+        
+        return list;
+    }
+    
+    public List<String> getNpcList() {
+        List<String> list = new ArrayList();
+        
+        for (int i = 0 ; i < Lists.npcs.size() ; i++)
+            list.add(String.format("%02X: %s", i, Lists.npcs.get(i)));
+        
+        return list;
     }
 }

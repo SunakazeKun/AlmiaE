@@ -1,0 +1,16 @@
+* FORMAT: MESG
+* EXTENSION: .meslz
+* COMPRESSION: LZ10
+* USE: Stores list of message strings.
+
+* STRUCTURE:
+Every MESG file starts with a header that is 0x18 bytes long:
+	0x00	int			File size
+	0x04	int			Number of messages
+	0x08	int			Unknown (always 0x10)
+	0x0C	byte[12]	Unknown (constant)
+
+The header is followed by the actual text strings. The messages
+are preceeded by an integer denoting the length of the string.
+All messages appear to be encoded in UTF-8, although this needs
+to be confirmed...

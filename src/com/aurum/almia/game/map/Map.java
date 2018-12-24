@@ -17,25 +17,24 @@
 
 package com.aurum.almia.game.map;
 
-import com.aurum.almia.ByteBuffer;
-import com.aurum.almia.ByteOrder;
-import com.aurum.almia.Utils;
+import com.aurum.almia.util.ByteBuffer;
+import java.nio.ByteOrder;
 import com.aurum.almia.game.Game;
-import com.aurum.almia.game.NARC;
-import com.aurum.almia.game.NARC.FimgEntry;
-import java.io.File;
+import com.aurum.almia.game.Narc;
+import com.aurum.almia.game.Narc.NarcFile;
+import com.aurum.almia.util.IOHelper;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Map {
-    public static final int MAP_MPIF = 0x4D504946;
-    public static final int MAP_TXIF = 0x54584946;
-    public static final int MAP_LYR = 0x4C595200;
-    public static final int MAP_CTA = 0x43544100;
-    public static final int MAP_PLA = 0x504C4100;
-    
-    //--------------------------------------------------------------------------
+    public static final String MAP_MPIF = "MPIF";
+    public static final String MAP_TXIF = "TXIF";
+    public static final String MAP_LYR  = "LYR\0";
+    public static final String MAP_CTA  = "CTA\0";
+    public static final String MAP_PLA  = "PLA\0";
     
     public Game game;
     public String name;
@@ -51,81 +50,82 @@ public class Map {
         this.mapInfo = new MapInfo(this);
         this.texInfo = new TextureInfo(this);
         this.layers = new ArrayList();
+        this.cta = null;
+        this.pla = null;
         
-        ByteBuffer buf = Utils.loadFileIntoBuffer(game.getFullPath(String.format("field/map/%s.map.dat.lz", name)));
-        NARC root = new NARC(buf);
-        buf.clear();
+        Narc root = new Narc(IOHelper.read(game.getFile(String.format("field/map/%s.map.dat.lz", name))));
         
-        for (FimgEntry file : root.files) {
-            buf = new ByteBuffer(file.data, ByteOrder.BIG_ENDIAN);
-            
-            int dataMagic = buf.readInt();
-            
-            buf.setEndianness(ByteOrder.LITTLE_ENDIAN);
+        for (NarcFile file : root.files) {
+            ByteBuffer buf = new ByteBuffer(file.data, ByteOrder.LITTLE_ENDIAN);
+            String dataMagic = buf.readMagic();
             
             switch(dataMagic) {
                 case MAP_MPIF: mapInfo = new MapInfo(this, buf); break;
                 case MAP_TXIF: texInfo = new TextureInfo(this, buf); break;
-                case MAP_CTA: cta = buf.readRemaining(); break;
-                case MAP_PLA: pla = buf.readRemaining(); break;
+                case MAP_CTA: cta = file.data; break;
+                case MAP_PLA: pla = file.data; break;
                 case MAP_LYR: {
-                    NARC lyr = new NARC(new ByteBuffer(buf.readRemaining()));
+                    Narc lyr = new Narc(buf.readRemaining());
                     
-                    for (FimgEntry lyrfile : lyr.files) {
-                        layers.add(new Layer(this, new NARC(new ByteBuffer(lyrfile.data))));
-                    }
+                    for (NarcFile lyrfile : lyr.files)
+                        layers.add(new Layer(this, new Narc(lyrfile.data)));
                 } break;
             }
         }
     }
     
     public byte[] pack() {
-        NARC root = new NARC();
+        Narc root = new Narc();
         
         root.addFile(mapInfo.pack());
         root.addFile(texInfo.pack());
         
         
-        NARC lyr = new NARC();
+        Narc lyr = new Narc();
         
-        for (Layer layer : layers) {
+        for (Layer layer : layers)
             lyr.addFile(layer.pack());
-        }
         
         byte[] lyrData = lyr.pack();
         ByteBuffer lyrBuf = new ByteBuffer(0x4 + lyrData.length);
         
-        lyrBuf.writeInt(MAP_LYR);
+        lyrBuf.writeMagic(MAP_LYR);
         lyrBuf.writeBytes(lyrData);
         
         root.addFile(lyrBuf.getBuffer());
         
-        lyrBuf.clear();
         
+        if (cta != null)
+            root.addFile(cta);
         
-        if (cta != null) {
-            ByteBuffer ctaBuf = new ByteBuffer(0x4 + cta.length);
-            
-            ctaBuf.writeInt(MAP_CTA);
-            ctaBuf.writeBytes(cta);
-            
-            root.addFile(ctaBuf.getBuffer());
-        }
-        
-        
-        if (pla != null) {
-            ByteBuffer plaBuf = new ByteBuffer(0x4 + pla.length);
-            
-            plaBuf.writeInt(MAP_PLA);
-            plaBuf.writeBytes(pla);
-            
-            root.addFile(plaBuf.getBuffer());
-        }
+        if (pla != null)
+            root.addFile(pla);
         
         return root.pack();
     }
     
     public void save() throws IOException {
-        Utils.saveBytesToFile(pack(), new File(game.getFullPath(String.format("field/map/%s.map.dat.lz", name))));
+        IOHelper.write(pack(), game.getFile(String.format("field/map/%s.map.dat.lz", name)));
+    }
+    
+    public void render(Graphics g) throws IOException {
+        g.setColor(Color.white);
+        g.fillRect(0, 0, mapInfo.width, mapInfo.height);
+        
+        // Draw grid
+        int gridlX = (mapInfo.width + 16) / 16;
+        int gridlY = (mapInfo.height + 16) / 16;
+        
+        g.setColor(Color.lightGray);
+        
+        for (int i = 0 ; i < gridlX ; i++)
+            g.drawLine(i * 16, 0, i * 16, mapInfo.height - 1);
+        
+        for (int i = 0 ; i < gridlY ; i++)
+            g.drawLine(0, i * 16, mapInfo.width - 1, i * 16);
+        
+        // Draw layers
+        for (Layer layer : layers)
+            layer.render(g);
     }
 }

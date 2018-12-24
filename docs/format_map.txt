@@ -1,0 +1,200 @@
+Every map consists of two NARC archives storing the layout and
+textures of the scene:
+* .map.tex.lz: Textures
+* .map.dat.lz: Layout
+
+The exact content of these archives is thoroughly described
+below. As denoted by the file extension, the archives are LZ10
+compressed.
+
+* Content of .map.tex.lz:
+- Magic "TEX"
+	- NARC
+		- NARCs for each tileset
+			- NCBR texture
+			- NCLR palette
+
+
+* Content of .map.dat.lz:
+- Binary file "MPIF"
+- Binary file "TXIF"
+- Binary file "LYR"
+	- NARC container
+		- NARC files for each layer
+			- binary files; first uint32 is the data identifier
+- Binary file "CTA"
+	- NARC container
+		- ~todo~
+- Binary file "PLA"
+	- NARC container
+		- ~todo~
+
+
+---------------------------------------------------------------
+
+* MPIF (0x14 bytes)
+0x00	uint32	magic
+0x04	uint32	width
+0x08	uint32	height
+0x0C	uint32	unknown
+0x10	uint32	unknown
+
+
+* TXIF (0x8 bytes + entries * 0x8 bytes)
+0x00	uint32	magic
+0x04	uint16	textures count
+0x06	uint16	unknown
+0x08			texture entries (à 0x8 bytes)
+	0x00	uint16	unknown
+	0x02	uint16	texture ID
+	0x04	uint16	unknown
+	0x05	uint16	unknown
+
+
+---------------------------------------------------------------
+
+* LYR files:
+
+Type 0x01 - Unknown:
+0x00	uint32	identifier
+
+
+Type 0x02 - Tiles
+0x00	uint32	identifier
+0x04	uint32	data size
+0x08	uint32	always 0x14, header size without identifier??
+0x0C	uint32	entry size(?)
+0x10	uint32	unknown
+ ~todo~
+
+
+Type 0x03 - Collision
+0x00	uint32	identifier
+0x04	uint32	always 0x10, header size without identifier??
+0x08	uint32	entries count (width * height)
+0x0C	uint32	width
+0x10	uint32	height
+0x14			entries (à 0x2 bytes)
+	0x00	uint16	collision type
+
+
+Type 0x04 - Obstacles:
+0x00	uint32	identifier
+0x04	uint32	entries count
+0x08			entries (à 0xC bytes)
+	0x00	uint16	X-Pos
+	0x02	uint16	Y-Pos
+	0x04	int8	unknown
+	0x05	int8	unknown
+	0x06	uint16	Obstacle ID
+	0x08	int16	upper bytes for 0x06 (?)
+	0x0A	int8	unknown, maybe uint16
+	0x0B	int8	unknown, upper byte for 0x0A (?)
+
+
+Type 0x05 - Unused
+0x00	uint32	identifier
+ ~todo~
+
+
+Type 0x06 - Overlay collision(?)
+0x00	uint32	identifier
+0x04	uint32	always 0x10, header size without identifier??
+0x08	uint32	entries count (width * height)
+0x0C	uint32	width
+0x10	uint32	height
+0x14			entries (à 0x2 bytes)
+	0x00	uint16	collision type
+
+
+Type 0x07 - Trigger:
+0x00	uint32	identifier
+0x04	uint32	entries count
+0x08			entries (à 0xA bytes)
+	0x00	uint16	X-Pos
+	0x02	uint16	Y-Pos
+	0x04	uint16	Width
+	0x06	uint16	Height
+	0x08	uint16	unknown
+
+
+Type 0x08 - NPC:
+0x00	uint32	identifier
+0x04	uint32	entries count
+0x08			entries (à 0xB bytes)
+	0x00	uint16	X-Pos
+	0x02	uint16	Y-Pos
+	0x04	uint8	Direction
+	0x05	bool8	Is active?
+	0x06	uint16	NPC ID
+	0x08	int8	unknown
+	0x09	int8	unknown
+	0x0A	bool8	unknown
+
+
+Type 0x09 - Pokémon:
+0x00	uint32	identifier
+0x04	uint32	entries count
+0x08			entries (à 0xA bytes)
+	0x00	uint16	X-Pos
+	0x02	uint16	Y-Pos
+	0x04	uint8	Behavior
+	0x05	uint8	Appearance
+	0x06	uint16	Pokémon ID
+	0x08	int8	unknown
+	0x09	int8	unknown
+
+
+Type 0x0A - Unknown
+0x00	uint32	identifier
+ ~todo~
+
+
+Type 0x0B - Unknown
+0x00	uint32	identifier
+ ~todo~
+
+
+Type 0x0C - Unknown
+0x00	uint32	identifier
+ ~todo~
+
+
+Type 0x0D - Unknown:
+0x00	uint32	identifier
+0x04	uint32	entries count
+0x08			entries (à 0x12 bytes)
+	 ~todo~
+
+
+Type 0x0E - Unknown
+0x00	uint32	identifier
+ ~todo~
+
+
+--------------------------------------------------------------
+
+* Direction values
+0x00	down
+0x01	left
+0x02	up
+0x03	right
+0x04	down(?)
+0x05	left(?)
+0x06	up(?)
+0x07	right(?)
+0x08	down(?)
+0x09	left(?)
+0x0A	up(?)
+0x0B	right(?)
+
+* Appearance values
+0x00	Not active
+0x01	Active
+0x02	Spawns from Tree
+
+* Behavior values Qwilfish
+0x00	Moving
+0x01	Cautious
+0x02	Still (Unused)
+0x03	Still

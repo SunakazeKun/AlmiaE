@@ -19,40 +19,49 @@ package com.aurum.almia;
 
 import com.aurum.almia.game.Game;
 import com.aurum.almia.game.map.Map;
-import com.aurum.almia.swing.MapEditor;
-import com.aurum.almia.swing.PokeIDEditor;
+import com.aurum.almia.editors.MapEditor;
+import com.aurum.almia.editors.PokeIDEditor;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-public class Main extends javax.swing.JFrame {
-    public static String name = "AlmiaE v0.1.1";
-    public static Image icon = Toolkit.getDefaultToolkit().createImage(Main.class.getResource("/res/icon.png"));
-    public static boolean debug = false;
+public class Main extends JFrame {
+    public static final String NAME = "AlmiaE v0.5";
+    public static final Image ICON = Resources.loadImage("icon.png");
+    private static boolean debug = false;
     
-    public static void main(String[] args) throws IOException {
-        if (args.length > 0) {
-            debug = args[0].equals("-d");
-        }
+    public static void main(String[] args) {
+        Iterator<String> argsi = Arrays.stream(args).iterator();
         
-        try {
-            javax.swing.UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            System.err.print(ex);
+        while(argsi.hasNext()) {
+            String arg = argsi.next();
+            
+            switch(arg) {
+                case "-d": debug = true; break;
+            }
         }
         
         Lists.init();
         
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception ex) {
+            System.err.print(ex);
+        }
+        
         new Main().setVisible(true);
+    }
+    
+    public static boolean isDebug() {
+        return debug;
     }
     
     public Main() {
@@ -75,8 +84,8 @@ public class Main extends javax.swing.JFrame {
         mnuAbout = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle(Main.name);
-        setIconImage(Main.icon);
+        setTitle(Main.NAME);
+        setIconImage(Main.ICON);
         setResizable(false);
 
         btnMapEditor.setText("Edit map");
@@ -210,7 +219,7 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_mnuCloseActionPerformed
 
     private void mnuAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mnuAboutActionPerformed
-        JOptionPane.showMessageDialog(this, "Copyright 2018 SunakazeKun\nhttps://github.com/SunakazeKun/AlmiaE", Main.name, JOptionPane.PLAIN_MESSAGE, null);
+        JOptionPane.showMessageDialog(this, "Copyright 2018 SunakazeKun\nhttps://github.com/SunakazeKun/AlmiaE", Main.NAME, JOptionPane.PLAIN_MESSAGE, null);
     }//GEN-LAST:event_mnuAboutActionPerformed
 
     private void btnPokemonEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPokemonEditorActionPerformed
@@ -218,13 +227,12 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_btnPokemonEditorActionPerformed
 
     private void btnMapEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMapEditorActionPerformed
-        Object[] maps = getMaps().toArray();
+        Object[] maps = Game.current.getMapsList().toArray();
         if (maps.length == 0) return;
         
-        String mapname = (String) JOptionPane.showInputDialog(this, "Select a map file.", Main.name, JOptionPane.PLAIN_MESSAGE, null, maps, maps[0]);
+        String mapname = (String) JOptionPane.showInputDialog(this, "Select a map file.", Main.NAME, JOptionPane.PLAIN_MESSAGE, null, maps, maps[0]);
         if (mapname == null) return;
         if (mapname.isEmpty()) return;
-        
         
         try {
             Map map = new Map(Game.current, mapname);
@@ -234,25 +242,6 @@ public class Main extends javax.swing.JFrame {
             System.out.println(ex);
         }
     }//GEN-LAST:event_btnMapEditorActionPerformed
-    
-    public List<String> getMaps() {
-        File[] files = new File(Game.current.filesystem.getAbsolutePath() + "/field/map").listFiles();
-        List<String> maps = new ArrayList();
-        
-        for (File file : files) {
-            if (!file.isFile()) {
-                continue;
-            }
-            
-            String filename = file.getName();
-            
-            if (filename.endsWith(".map.dat.lz")) {
-                maps.add(filename.replace(".map.dat.lz", ""));
-            }
-        }
-        
-        return maps;
-    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnMapEditor;

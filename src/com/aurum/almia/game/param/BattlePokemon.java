@@ -17,20 +17,26 @@
 
 package com.aurum.almia.game.param;
 
-import com.aurum.almia.ByteBuffer;
-import com.aurum.almia.ByteOrder;
-import com.aurum.almia.Utils;
+import com.aurum.almia.util.ByteBuffer;
 import com.aurum.almia.game.Game;
-import java.io.File;
+import com.aurum.almia.util.IOHelper;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BattlePokemon {
     public static final int HEADER_SIZE = 0x10;
     public static final int ENTRY_SIZE = 0x18;
-    
-    //--------------------------------------------------------------------------
+    private static final byte[] UNIQUE = {
+        (byte)0x07, (byte)0x01, (byte)0x03, (byte)0x03,
+        (byte)0x01, (byte)0x02, (byte)0x02, (byte)0x01,
+        (byte)0x01, (byte)0x01, (byte)0x01, (byte)0x03,
+        (byte)0x01, (byte)0x02, (byte)0x02, (byte)0x02,
+        (byte)0x02, (byte)0x02, (byte)0x02, (byte)0x02,
+        (byte)0x01, (byte)0x01
+    };
     
     public static class Entry implements Cloneable {
         public byte[] unk0;
@@ -41,41 +47,34 @@ public class BattlePokemon {
         
         @Override
         public String toString() {
-            return super.toString();
+            return Arrays.toString(unk0);
         }
     }
-    
-    //--------------------------------------------------------------------------
     
     public Game game;
     public List<Entry> entries;
-    public byte[] unique;
     public int unkC;
     
-    //--------------------------------------------------------------------------
-    
-    public BattlePokemon(Game game) {
+    public BattlePokemon(Game game) throws IOException {
         this.game = game;
         this.entries = new ArrayList();
-        this.unique = new byte[0x0];
-        this.unkC = 0x0;
-    }
-    
-    public BattlePokemon(Game game, ByteBuffer buf) {
-        this(game);
         
+        ByteBuffer buf = ByteBuffer.read(game.getFile("param/BattlePokemon.bin"));
         buf.setEndianness(ByteOrder.LITTLE_ENDIAN);
         
-        int totalsize = buf.readInt();
-        if (buf.size() != totalsize) {
+        int totalSize = buf.readInt();
+        if (buf.size() != totalSize)
             System.out.println("BattlePokemon: Warning! Stored size does not equal actual buffer size!");
-        }
-        int uniquesize = buf.readInt();
-        int datasize = buf.readInt();
-        unkC = buf.readInt();
-        unique = buf.readBytes(uniquesize);
         
-        int entriesCount = datasize / ENTRY_SIZE;
+        int uniqueSize = buf.readInt();
+        int dataSize = buf.readInt();
+        this.unkC = buf.readInt();
+        
+        byte[] unique = buf.readBytes(uniqueSize);
+        if (!Arrays.equals(unique, UNIQUE))
+            System.out.println("PokeID: Warning! Are you sure this is PokeID data?");
+        
+        int entriesCount = dataSize / ENTRY_SIZE;
         
         for (int i = 0 ; i < entriesCount ; i++) {
             Entry e = new Entry();
@@ -87,24 +86,23 @@ public class BattlePokemon {
     }
     
     public byte[] pack() {
-        int datasize = entries.size() * ENTRY_SIZE;
-        int totalsize = HEADER_SIZE + unique.length + datasize;
+        int dataSize = entries.size() * ENTRY_SIZE;
+        int totalSize = HEADER_SIZE + UNIQUE.length + dataSize;
         
-        ByteBuffer buf = new ByteBuffer(totalsize, ByteOrder.LITTLE_ENDIAN);
-        buf.writeInt(totalsize);
-        buf.writeInt(unique.length);
-        buf.writeInt(datasize);
+        ByteBuffer buf = new ByteBuffer(totalSize, ByteOrder.LITTLE_ENDIAN);
+        buf.writeInt(totalSize);
+        buf.writeInt(UNIQUE.length);
+        buf.writeInt(dataSize);
         buf.writeInt(unkC);
-        buf.writeBytes(unique);
+        buf.writeBytes(UNIQUE);
         
-        for (Entry e : entries) {
+        for (Entry e : entries)
             buf.writeBytes(e.unk0);
-        }
         
         return buf.getBuffer();
     }
     
     public void save() throws IOException {
-        Utils.saveBytesToFile(pack(), new File(game.getFullPath("param/BattlePokemon.bin")));
+        IOHelper.write(pack(), game.getFile("param/BattlePokemon.bin"));
     }
 }

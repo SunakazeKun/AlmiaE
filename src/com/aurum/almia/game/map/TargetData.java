@@ -17,20 +17,20 @@
 
 package com.aurum.almia.game.map;
 
-import com.aurum.almia.ByteBuffer;
-import com.aurum.almia.ByteOrder;
-import com.aurum.almia.Lists;
-import static com.aurum.almia.game.map.Layer.MDATA_TARGET;
+import com.aurum.almia.util.ByteBuffer;
+import java.nio.ByteOrder;
+import com.aurum.almia.util.RenderHelper;
+import com.aurum.almia.Resources;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.List;
 
-public class TargetData {
+public class TargetData extends AbstractData<TargetData.Entry> {
     public static final int HEADER_SIZE = 0x8;
     public static final int ENTRY_SIZE = 0xC;
     
-    //--------------------------------------------------------------------------
-    
-    public class Entry implements Cloneable {
+    public class Entry extends AbstractEntry<TargetData> {
         public short posX;
         public short posY;
         public byte unk4;
@@ -42,6 +42,8 @@ public class TargetData {
         public byte unkB;
         
         public Entry() {
+            super(TargetData.this);
+            
             this.posX = 0;
             this.posY = 0;
             this.unk4 = 0;
@@ -55,19 +57,27 @@ public class TargetData {
         
         @Override
         public String toString() {
-            return String.format("%03X: %s", obstacleID, Lists.obstacles.get(obstacleID));
+            return layer.map.game.getTargetList().get(obstacleID);
+        }
+        
+        @Override
+        public void render(Graphics g) {
+            BufferedImage img = Resources.getTargetImg(obstacleID);
+            
+            if (img == null)
+                RenderHelper.drawBox(
+                        g, posX, posY, 16, 16,
+                        Color.BLACK, new Color(0f, 1f, 0f, 0.5f),
+                        true
+                );
+            else
+                g.drawImage(img, posX - (img.getWidth() / 2), posY - (img.getHeight() / 2), null);
         }
     }
     
-    //--------------------------------------------------------------------------
-    
-    public Layer layer;
-    public List<Entry> entries;
-    
-    //--------------------------------------------------------------------------
-    
     public TargetData(Layer layer) {
-        this.layer = layer;
+        super(layer);
+        
         this.entries = new ArrayList();
     }
     
@@ -95,12 +105,18 @@ public class TargetData {
         }
     }
     
+    @Override
+    public String toString() {
+        return "Targets";
+    }
+    
+    @Override
     public byte[] pack() {
         int totalsize = HEADER_SIZE + entries.size() * ENTRY_SIZE;
         
         ByteBuffer buf = new ByteBuffer(totalsize, ByteOrder.LITTLE_ENDIAN);
         
-        buf.writeInt(MDATA_TARGET);
+        buf.writeInt(getIdentifier());
         buf.writeInt(entries.size());
         
         for (Entry e : entries) {
@@ -116,5 +132,16 @@ public class TargetData {
         }
         
         return buf.getBuffer();
+    }
+    
+    @Override
+    public int getIdentifier() {
+        return Layer.MDATA_TARGET;
+    }
+    
+    @Override
+    public void render(Graphics g) {
+        for (Entry entry : entries)
+            entry.render(g);
     }
 }
