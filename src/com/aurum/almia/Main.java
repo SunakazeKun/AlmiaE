@@ -21,11 +21,17 @@ import com.aurum.almia.game.Game;
 import com.aurum.almia.game.map.Map;
 import com.aurum.almia.editors.MapEditor;
 import com.aurum.almia.editors.PokeIDEditor;
+import com.aurum.almia.game.map.Layer;
+import com.aurum.almia.game.map.MonData;
+import com.aurum.almia.game.map.NpcData;
+import com.aurum.almia.game.map.TargetData;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -33,9 +39,9 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 public class Main extends JFrame {
-    public static final String NAME = "AlmiaE v0.5";
+    public static final String NAME = "AlmiaE v0.6";
     public static final Image ICON = Resources.loadImage("icon.png");
-    private static boolean debug = false;
+    private static boolean isDebug = false;
     
     public static void main(String[] args) {
         Iterator<String> argsi = Arrays.stream(args).iterator();
@@ -44,7 +50,7 @@ public class Main extends JFrame {
             String arg = argsi.next();
             
             switch(arg) {
-                case "-d": debug = true; break;
+                case "-d": isDebug = true; break;
             }
         }
         
@@ -54,14 +60,14 @@ public class Main extends JFrame {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
         catch (Exception ex) {
-            System.err.print(ex);
+            ex.printStackTrace();
         }
         
         new Main().setVisible(true);
     }
     
     public static boolean isDebug() {
-        return debug;
+        return isDebug;
     }
     
     public Main() {
@@ -207,7 +213,7 @@ public class Main extends JFrame {
         }
         catch (IOException ex) {
             enableComponents = false;
-            System.err.print(ex);
+            ex.printStackTrace();
         }
         
         btnPokemonEditor.setEnabled(enableComponents);
@@ -239,7 +245,7 @@ public class Main extends JFrame {
             new MapEditor(map).setVisible(true);
         }
         catch (IOException ex) {
-            System.out.println(ex);
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_btnMapEditorActionPerformed
     

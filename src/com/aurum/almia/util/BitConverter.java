@@ -144,6 +144,16 @@ public final class BitConverter {
         return endian == ByteOrder.LITTLE_ENDIAN ? ArrayUtils.reverse(bs) : bs;
     }
     
+    public static byte[] getBytes24(int val, ByteOrder endian) {
+        byte[] bs = new byte[3];
+        
+        bs[0] = (byte)((val >> 16) & 0xFF);
+        bs[1] = (byte)((val >>  8) & 0xFF);
+        bs[2] = (byte) (val        & 0xFF);
+        
+        return endian == ByteOrder.LITTLE_ENDIAN ? ArrayUtils.reverse(bs) : bs;
+    }
+    
     public static byte[] getBytes(float val, ByteOrder endian) {
         return getBytes(Float.floatToIntBits(val), endian);
     }

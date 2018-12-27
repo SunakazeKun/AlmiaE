@@ -54,64 +54,64 @@ Fallen Leaves
 Soft Soil
 Metal Crate
 Torch
-Torch
-unknown
-unknown
+---
+---
+---
 Trap
 Power Generator
-Power Generator
-Power Generator
-Power Generator
+---
+---
+---
 Gate
-Gate
-Gate
-Gate
+---
+Unknown
+---
 Vine
+---
 Vine
-Vine
-Vine
+---
 Forest Tree
-Forest Tree
+---
 Snow Tree
-unknown
-unknown
-unknown
+Bush
+---
+Seaweed
+Unknown
+---
 Electric Door
-Electric Door
-Electric Door
-Electric Door
-Electric Door
-Electric Door
+---
+Unknown
+---
 Sealed Door
-Sealed Door
-Sealed Door
+---
+---
 Steel Statue
 Rock Statue
 Pledge Stone
-Pledge Stone
+---
 Ice Statue
-unknown
-unknown
-unknown
-unknown
-unknown
+Ice Lake Boulder
+Unknown
+---
+---
+---
 Temple Platform
-unknown
-unknown
-unknown
-Trampline Plant
+Signpost
+Unknown
+---
+Trampoline Plant
 Icicle
-unknown
-unknown
-unknown
-unknown
-unknown
+---
+Blue Gem Sparkle
+Red Gem Sparkle
+Yellow Gem Sparkle
+Broken Gigaremo
 Ice Wall
 Rotten Log
 Ice Platform
-unknown
-unknown
-Quicksand Pit
+Cracked Ice Platform
+Fireblaze Spawner
+Sand Pit
 unknown
 unknown
 unknown

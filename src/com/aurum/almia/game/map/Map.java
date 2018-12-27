@@ -17,6 +17,7 @@
 
 package com.aurum.almia.game.map;
 
+import com.aurum.almia.game.Compression;
 import com.aurum.almia.util.ByteBuffer;
 import java.nio.ByteOrder;
 import com.aurum.almia.game.Game;
@@ -101,11 +102,18 @@ public class Map {
         if (pla != null)
             root.addFile(pla);
         
-        return root.pack();
+        return Compression.compress(
+                root.pack(),
+                ByteOrder.LITTLE_ENDIAN,
+                Compression.LZ10
+        );
     }
     
     public void save() throws IOException {
-        IOHelper.write(pack(), game.getFile(String.format("field/map/%s.map.dat.lz", name)));
+        IOHelper.write(
+                pack(),
+                game.getFile(String.format("field/map/%s.map.dat.lz", name))
+        );
     }
     
     public void render(Graphics g) throws IOException {

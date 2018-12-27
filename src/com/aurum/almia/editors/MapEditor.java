@@ -36,7 +36,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 public class MapEditor extends javax.swing.JFrame {
     private class MapRenderer extends JPanel implements Runnable {
-        static final int FPS = 30;
+        static final int FPS = 20;
         
         Thread thread;
         boolean isRunning;
@@ -58,7 +58,7 @@ public class MapEditor extends javax.swing.JFrame {
                 map.render(g);
             }
             catch (IOException ex) {
-                System.out.println(ex);
+                ex.printStackTrace();
             }
         }
 
@@ -110,17 +110,17 @@ public class MapEditor extends javax.swing.JFrame {
                 thread.join();
             }
             catch(InterruptedException ex) {
-                System.out.println(ex);
+                ex.printStackTrace();
             }
         }
     }
     
     private class ObjTreeCellRenderer extends DefaultTreeCellRenderer {
-        final Icon ICON_MISC     = Resources.loadIcon("mapEditor/node_misc.png");
-        final Icon ICON_LOCATION = Resources.loadIcon("mapEditor/node_location.png");
-        final Icon ICON_TARGET   = Resources.loadIcon("mapEditor/node_target.png");
-        final Icon ICON_POKEMON  = Resources.loadIcon("mapEditor/node_mon.png");
-        final Icon ICON_NPC      = Resources.loadIcon("mapEditor/node_npc.png");
+        final Icon nodeMisc     = Resources.loadIcon("node_misc.png");
+        final Icon nodeLocation = Resources.loadIcon("node_location.png");
+        final Icon nodeTarget   = Resources.loadIcon("node_target.png");
+        final Icon nodeMon      = Resources.loadIcon("node_mon.png");
+        final Icon nodeNpc      = Resources.loadIcon("node_npc.png");
         
         @Override
         public Component getTreeCellRendererComponent(JTree tree,
@@ -131,18 +131,18 @@ public class MapEditor extends javax.swing.JFrame {
             Object val = ((DefaultMutableTreeNode)value).getUserObject();
 
             if (val != null) {
-                if (val instanceof MapInfo)                 setIcon(ICON_MISC);
-                else if (val instanceof CollisionData)      setIcon(ICON_MISC);
-                else if (val instanceof TextureInfo)        setIcon(ICON_MISC);
-                else if (val instanceof TextureInfo.Entry)  setIcon(ICON_MISC);
-                else if (val instanceof LocationData)       setIcon(ICON_LOCATION);
-                else if (val instanceof LocationData.Entry) setIcon(ICON_LOCATION);
-                else if (val instanceof TargetData)         setIcon(ICON_TARGET);
-                else if (val instanceof TargetData.Entry)   setIcon(ICON_TARGET);
-                else if (val instanceof MonData)            setIcon(ICON_POKEMON);
-                else if (val instanceof MonData.Entry)      setIcon(ICON_POKEMON);
-                else if (val instanceof NpcData)            setIcon(ICON_NPC);
-                else if (val instanceof NpcData.Entry)      setIcon(ICON_NPC);
+                if (val instanceof MapInfo)                 setIcon(nodeMisc);
+                else if (val instanceof CollisionData)      setIcon(nodeMisc);
+                else if (val instanceof TextureInfo)        setIcon(nodeMisc);
+                else if (val instanceof TextureInfo.Entry)  setIcon(nodeMisc);
+                else if (val instanceof LocationData)       setIcon(nodeLocation);
+                else if (val instanceof LocationData.Entry) setIcon(nodeLocation);
+                else if (val instanceof TargetData)         setIcon(nodeTarget);
+                else if (val instanceof TargetData.Entry)   setIcon(nodeTarget);
+                else if (val instanceof MonData)            setIcon(nodeMon);
+                else if (val instanceof MonData.Entry)      setIcon(nodeMon);
+                else if (val instanceof NpcData)            setIcon(nodeNpc);
+                else if (val instanceof NpcData.Entry)      setIcon(nodeNpc);
             }
 
             return this;
@@ -358,7 +358,7 @@ public class MapEditor extends javax.swing.JFrame {
             map.save();
         }
         catch (IOException ex) {
-            System.out.println(ex);
+            ex.printStackTrace();
         }
     }//GEN-LAST:event_btnSaveAllActionPerformed
 

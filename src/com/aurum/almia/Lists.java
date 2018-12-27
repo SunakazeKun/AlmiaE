@@ -55,7 +55,7 @@ public final class Lists {
             reader.close();
         }
         catch (IOException ex) {
-            System.out.println(ex);
+            ex.printStackTrace();
         }
         
         return list;

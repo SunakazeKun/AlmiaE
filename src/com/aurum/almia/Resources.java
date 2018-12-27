@@ -47,7 +47,7 @@ public class Resources {
             in.close();
         }
         catch(IOException ex) {
-            System.out.println(ex);
+            ex.printStackTrace();
         }
 
         return image;
@@ -60,21 +60,8 @@ public class Resources {
     // Helpers for map object sprites
     public static BufferedImage getTargetImg(int target) {
         switch(target) {
-            case 56: target = 55; break;
-            case 61:
-            case 62:
-            case 63: target = 60; break;
-            case 65:
-            case 66:
-            case 67: target = 64; break;
-            case 69: target = 68; break;
-            case 71: target = 70; break;
-            case 73: target = 72; break;
-            case 79:
-            case 80:
-            case 81:
-            case 82:
-            case 83: target = 78; break;
+            case 82: target = 78; break;
+            case 95: target = 93; break;
         }
         
         return loadImage(String.format("targets/%d.png", target));

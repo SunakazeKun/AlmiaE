@@ -18,11 +18,17 @@
 package com.aurum.almia.game;
 
 import com.aurum.almia.util.BitConverter;
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteOrder;
 
 public final class Compression {
+    private Compression() {}
+    
     public static final int LZ10 = 0x10;
     public static final int LZ11 = 0x11;
+    public static final int HUFF4 = 0x24;
+    public static final int HUFF8 = 0x28;
+    public static final int RLE = 0x30;
     
     public static byte[] decompress(byte[] compressed, ByteOrder endian) {
         switch(compressed[0] & 0xFF) {
@@ -51,8 +57,9 @@ public final class Compression {
             for (int fi = 0 ; fi < 8 && curIn < compressed.length ; fi++) {
                 if ((flags & (0x80 >> fi)) != 0) {
                     int token = compressed[curIn++] & 0xFF;
+                    int token2 = compressed[curIn++] & 0xFF;
+                    int disp = ((token & 0xF) << 8) | token2;
                     int lenCopy = (token >> 4) + 3;
-                    int disp = ((token & 0xF) << 8) | (compressed[curIn++] & 0xFF);
                     int offCopy = curOut - disp - 1;
                     
                     for (int i = 0 ; i < lenCopy ; i++)
@@ -85,31 +92,32 @@ public final class Compression {
             for (int fi = 0 ; fi < 8 && curIn < compressed.length ; fi++) {
                 if ((flags & (0x80 >> fi)) != 0) {
                     int token = compressed[curIn++] & 0xFF;
-                    int token2, token3;
-                    int lenCopy;
+                    int token2 = compressed[curIn++] & 0xFF;
+                    int token3, token4;
                     int disp;
+                    int lenCopy;
                     int offCopy;
                     
                     switch(token >> 4) {
                         case 0:
-                            token2 = compressed[curIn++] & 0xFF;
-                            
-                            lenCopy = (((token & 0xF) << 4) | (token2 >> 4)) + 0x11;
-                            disp = ((token2 & 0xF) << 8) | (compressed[curIn++] & 0xFF);
-                            break;
-                        case 1:
-                            token2 = compressed[curIn++] & 0xFF;
                             token3 = compressed[curIn++] & 0xFF;
                             
-                            lenCopy = (((token & 0xF) << 12) | (token2 << 4) | (token3 >> 4)) + 0x111;
-                            disp = ((token3 & 0xF) << 8) | (compressed[curIn++] & 0xFF);
+                            disp = ((token2 & 0xF) << 8) | token3;
+                            lenCopy = 0x11 + (((token & 0xF) << 4) | (token2 >> 4));
+                            break;
+                        case 1:
+                            token3 = compressed[curIn++] & 0xFF;
+                            token4 = compressed[curIn++] & 0xFF;
+                            
+                            disp = ((token3 & 0xF) << 8) | token4;
+                            lenCopy = 0x111 + (((token & 0xF) << 12) | (token2 << 4) | (token3 >> 4));
                             break;
                         default:
-                            lenCopy = (token >> 4) + 0x1;
-                            disp = ((token & 0xF) << 8) | (compressed[curIn++] & 0xFF);
+                            disp = ((token & 0xF) << 8) | token2;
+                            lenCopy = 0x1 + (token >> 4);
                     }
                     
-                    offCopy = curOut + disp + 1;
+                    offCopy = curOut - disp - 1;
                     
                     for (int i = 0 ; i < lenCopy ; i++)
                         decompressed[curOut++] = decompressed[offCopy + i];
@@ -120,5 +128,174 @@ public final class Compression {
         }
         
         return decompressed;
+    }
+    
+    public static byte[] compress(byte[] decompressed, ByteOrder endian, int format) {
+        switch(format) {
+            case LZ10: return compressLZ10(decompressed, endian);
+            case LZ11: return compressLZ11(decompressed, endian);
+            default: return decompressed;
+        }
+    }
+    
+    // https://github.com/pleonex/tinke/blob/master/Plugins/DSDecmp/DSDecmp/Formats/Nitro/LZ10.cs#L173
+    public static byte[] compressLZ10(byte[] decompressed, ByteOrder endian) {
+        ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+        
+        compressed.write(LZ10);
+        
+        if (decompressed.length > 0xFFFFFF) {
+            compressed.write(0);
+            compressed.write(0);
+            compressed.write(0);
+            compressed.write(BitConverter.getBytes(decompressed.length, endian), 0, 4);
+        }
+        else
+            compressed.write(BitConverter.getBytes24(decompressed.length, endian), 0, 3);
+        
+        int curIn = 0;
+        
+        byte[] outBuffer = new byte[17];
+        outBuffer[0] = 0;
+        int lenBuffer = 1;
+        int numBlocks = 0;
+        
+        while (curIn < decompressed.length) {
+            if (numBlocks == 8) {
+                compressed.write(outBuffer, 0, lenBuffer);
+                outBuffer[0] = 0;
+                lenBuffer = 1;
+                numBlocks = 0;
+            }
+            
+            int[] occInfo = getOccurenceInfo(
+                    decompressed,
+                    curIn,
+                    Math.min(decompressed.length - curIn, 0x12),
+                    Math.min(curIn, 0x1000)
+            );
+            int occLength = occInfo[0];
+            int occDisp = occInfo[1];
+            
+            if (occLength < 3)
+                outBuffer[lenBuffer++] = decompressed[curIn++];
+            else {
+                outBuffer[0] |= (byte)(1 << (7 - numBlocks));
+                
+                outBuffer[lenBuffer] = (byte)(((occLength - 3) & 0xF) << 4);
+                outBuffer[lenBuffer++] |= (byte)(((occDisp - 1) >> 8) & 0xF);
+                outBuffer[lenBuffer++] = (byte)((occDisp - 1) & 0xFF);
+                curIn += occLength;
+            }
+            
+            numBlocks++;
+        }
+        
+        if (numBlocks > 0)
+            compressed.write(outBuffer, 0, lenBuffer);
+        
+        return compressed.toByteArray();
+    }
+    
+    // https://github.com/pleonex/tinke/blob/master/Plugins/DSDecmp/DSDecmp/Formats/Nitro/LZ11.cs#L238
+    public static byte[] compressLZ11(byte[] decompressed, ByteOrder endian) {
+        ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+        
+        compressed.write(LZ11);
+        
+        if (decompressed.length > 0xFFFFFF) {
+            compressed.write(0);
+            compressed.write(0);
+            compressed.write(0);
+            compressed.write(BitConverter.getBytes(decompressed.length, endian), 0, 4);
+        }
+        else
+            compressed.write(BitConverter.getBytes24(decompressed.length, endian), 0, 3);
+        
+        int curIn = 0;
+        
+        byte[] outBuffer = new byte[33];
+        outBuffer[0] = 0;
+        int lenBuffer = 1;
+        int numBlocks = 0;
+        
+        while (curIn < decompressed.length) {
+            if (numBlocks == 8) {
+                compressed.write(outBuffer, 0, lenBuffer);
+                outBuffer[0] = 0;
+                lenBuffer = 1;
+                numBlocks = 0;
+            }
+            
+            int[] occInfo = getOccurenceInfo(
+                    decompressed,
+                    curIn,
+                    Math.min(decompressed.length - curIn, 0x10110),
+                    Math.min(curIn, 0x1000)
+            );
+            int occLength = occInfo[0];
+            int occDisp = occInfo[1];
+            
+            if (occLength < 3)
+                outBuffer[lenBuffer++] = decompressed[curIn++];
+            else {
+                outBuffer[0] |= (byte)(1 << (7 - numBlocks));
+                
+                if (occLength > 0x110) {
+                    outBuffer[lenBuffer] = 0x10;
+                    outBuffer[lenBuffer++] |= (byte)(((occLength - 0x111) >> 12) & 0xF);
+                    outBuffer[lenBuffer++] = (byte)(((occLength - 0x111) >> 4) & 0xFF);
+                    outBuffer[lenBuffer] = (byte)(((occLength - 0x111) & 0xF) << 4);
+                }
+                else if (occLength > 0x10) {
+                    outBuffer[lenBuffer] = 0x00;
+                    outBuffer[lenBuffer++] |= (byte)(((occLength - 0x111) >> 4) & 0xF);
+                    outBuffer[lenBuffer] = (byte)(((occLength - 0x111) & 0xF) << 4);
+                }
+                else
+                    outBuffer[lenBuffer] = (byte)(((occLength - 1) & 0xF) << 4);
+                
+                outBuffer[lenBuffer++] |= (byte)(((occDisp - 1) >> 8) & 0xF);
+                outBuffer[lenBuffer++] = (byte)((occDisp - 1) & 0xFF);
+                curIn += occLength;
+            }
+            
+            numBlocks++;
+        }
+        
+        if (numBlocks > 0)
+            compressed.write(outBuffer, 0, lenBuffer);
+        
+        return compressed.toByteArray();
+    }
+    
+    // https://github.com/pleonex/tinke/blob/master/Plugins/DSDecmp/DSDecmp/Utils/LZUtil.cs#L19
+    private static int[] getOccurenceInfo(byte[] decompressed, int current, int pending, int finished) {
+        if (pending == 0)
+            return new int[] { 0, 0 };
+        
+        int disp = 0;
+        int length = 0;
+        
+        for (int i = 0 ; i < finished - 1 ; i++) {
+            int pendingOffset = current - finished + i;
+            int pendingLength = 0;
+            
+            for (int j = 0 ; j < pending ; j++) {
+                if (decompressed[pendingOffset + j] != decompressed[current + j])
+                    break;
+                pendingLength++;
+            }
+            
+            if (pendingLength > length) {
+                length = pendingLength;
+                disp = finished - i;
+                
+                if (length == pending)
+                    break;
+            }
+        }
+        
+        return new int[] { length, disp};
     }
 }
